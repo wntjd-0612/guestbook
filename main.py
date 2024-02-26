@@ -1,5 +1,5 @@
-from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Request, Form, HTTPException
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -28,7 +28,8 @@ async def add_entry(request: Request, name: str = Form(...), message: str = Form
     try:
         entry = f"{name}: {message}"
         guestbook_entries.append(entry)
-        return templates.TemplateResponse("index.html", {"request": request, "entries": guestbook_entries})
+        # Redirect to the main page after adding an entry
+        return RedirectResponse(url="/", status_code=303)
     except Exception as e:
         print(f"Error adding entry: {e}")
-        raise
+        raise HTTPException(status_code=500, detail="Internal Server Error")
